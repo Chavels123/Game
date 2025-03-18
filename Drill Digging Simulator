@@ -1,0 +1,50 @@
+local plr = game:GetService("Players").LocalPlayer
+local char = plr.Character or plr.CharacterAdded:Wait()
+local repStorage = game:GetService("ReplicatedStorage")
+local cashRemote = repStorage:WaitForChild("GiveCash")
+
+local enabled = true
+
+local function findPlayerTools()
+    local myTools = {}
+    
+    for _, thing in pairs(char:GetChildren()) do
+        if thing:IsA("Tool") then
+            table.insert(myTools, thing)
+        end
+    end
+    
+    return myTools
+end
+
+local function tryCashGrab()
+    if not enabled then return end
+    
+    local myTools = findPlayerTools()
+    
+    if #myTools == 0 then
+        return
+    end
+    
+    for i, tool in pairs(myTools) do
+        local args = {
+            [1] = char[tool.Name]
+        }
+        
+        cashRemote:FireServer(unpack(args))
+        wait(0.001)
+    end
+end
+
+plr.CharacterAdded:Connect(function(newChar)
+    char = newChar
+    tryCashGrab()
+end)
+
+if char then
+    tryCashGrab()
+end
+
+while wait(0.001) do
+    tryCashGrab()
+end 
